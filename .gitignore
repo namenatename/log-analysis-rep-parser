@@ -1,1 +1,6 @@
 .env
+.venv/
+src/__pycache__/
+*.pyc
+sample_logs/
+output/
