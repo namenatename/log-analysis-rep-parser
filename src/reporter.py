@@ -22,7 +22,7 @@ def generate_report(result):
                 writer.writerow([ip, stats['malicious'], stats['suspicious'], stats['harmless'], "CLEAN"])
 
 if __name__ == "__main__":
-    events = get_logs('/Users/nate/log-parser/sample_logs/mimikatz_alerts.json')
+    events = get_logs('sample_logs/sample_alerts.json')
     net_evts = network_events(events)
     ip_list = extract_ioc(net_evts)
     result_dict = {}
