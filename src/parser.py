@@ -14,8 +14,7 @@ def get_logs(path):
 def network_events(events):
     return [e for e in events if e.get('EventID') == 3] # returns None by default
 
-if __name__ == "__main__":
-    events = get_logs('/Users/nate/log-parser/sample_logs/mimikatz_alerts.json')
-    net_evts = network_events(events)
-    print("Total events: " + str(len(events)))
-    print("Total Network events (ID 3): " + str(len(net_evts)))
+# function for EID 1 hash parsing
+def eid_1(events):
+    return [e for e in events if e.get('EventID') == 1]
+
