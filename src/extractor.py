@@ -1,14 +1,15 @@
 # Extractor for IOC data from parser
 
-"""Function to remove redundant API calls by checking for most common private IP addresses"""
 def is_private(ip):
-    if ip.startswith('10.') or ip.startswith('172.16') or ip.startswith('192.168.') or ip.startswith('fe80'):
+    """Function to remove redundant API calls by checking for most common private IP addresses"""
+    if ip.startswith('10.') or ip.startswith('172.') or ip.startswith('192.168.') or ip.startswith('fe80'):
         return True
     else:
         return False
 
-"""Function to extract ips from event logs (EID 3)"""
+
 def extract_ips(events):
+    """Function to extract ips from event logs (EID 3)"""
     # Set for storing unique IPs
     ip_list = set()
     for line in events:
@@ -24,8 +25,8 @@ def extract_ips(events):
                 ip_list.add(dest_ip)
     return ip_list
 
-"""Function to extract hashes from event logs (EID 1)"""
 def extract_hash(events):
+    """Function to extract hashes from event logs (EID 1)"""
     # Set for storing unique hashes
     hash_list = set()
     for line in events:
@@ -36,4 +37,4 @@ def extract_hash(events):
                 if value.startswith('SHA256='):
                     sha256 = value.split('=')[1]
                     hash_list.add(sha256)
-    return(hash_list)
+    return hash_list
