@@ -4,11 +4,11 @@ import json
 
 def get_logs(path):
     events = []
-    f = open(path, 'r')
-    for line in f:
-        line = line.strip() 
-        if line: # check for empty lines
-            events.append(json.loads(line))
+    with open(path, 'r') as f:
+        for line in f:
+            line = line.strip() 
+            if line: # check for empty lines
+                events.append(json.loads(line))
     return events
 
 def network_events(events):
