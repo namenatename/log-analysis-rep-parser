@@ -75,7 +75,7 @@ HASH,A75C85F3B089993E9C042FB82ECB7757E8F460ED8065FC7991CAA38A6DE0F50C,0,0,0,CLEA
 
 ## Synthetic IOC Injection
 
-To test the dataset, synthetic IOC injection was used to inject one known malicious IP and malicious hash into the original dataset. The IP used was found on [FEODO tracker's blocklist](https://feodotracker.abuse.ch/blocklist/#ip-blocklist). The IP blocklist for C2 botnets tracked by FEODO will be provided in the sample_logs/ folder of this repo. Additionally, a [sample SHA256 malicious Mimikatz hash](https://bazaar.abuse.ch/sample/d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1/) from the Malware Bazaar database was used to test the capabilities of the hash detector tool. The original IOC from the OTRF Mimikatz Dataset, along with the injected IOC from the two malware databases specified are as follows:
+To test the dataset, synthetic IOC injection was used to inject one known malicious IP and malicious hash into the original dataset. The IP used was found on [Feodo Tracker's blocklist](https://feodotracker.abuse.ch/blocklist/#ip-blocklist). The IP blocklist for C2 botnets tracked by Feodo will be provided in the sample_logs/ folder of this repo. Additionally, a [sample SHA256 malicious Mimikatz hash](https://bazaar.abuse.ch/sample/d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1/) from the Malware Bazaar database was used to test the capabilities of the hash detector tool. The original IOC from the OTRF Mimikatz Dataset, along with the injected IOC from the two malware databases specified are as follows:
 
 | Original IOC | Injected IOC | Database |
 |---|---|---|
