@@ -3,4 +3,5 @@
 src/__pycache__/
 *.pyc
 sample_logs/
+!sample_logs/ipblocklist.json
 output/
