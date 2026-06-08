@@ -30,7 +30,7 @@ def extract_hash(events):
     # Set for storing unique hashes
     hash_list = set()
     for line in events:
-        if line.get('Hashes') is not None:
+        if line.get('EventID') == 1 and line.get('Hashes') is not None:
             raw_hash = line.get('Hashes')
             hash_source = raw_hash.split(',')
             for value in hash_source:
