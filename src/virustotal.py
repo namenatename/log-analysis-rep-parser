@@ -42,7 +42,7 @@ def check_hash(file_hash):
         malicious = data.get('data', {}).get('attributes', {}).get('last_analysis_stats', {}).get('malicious')
         sus = data.get('data', {}).get('attributes', {}).get('last_analysis_stats', {}).get('suspicious')
         harmless = data.get('data', {}).get('attributes', {}).get('last_analysis_stats', {}).get('harmless')
-        return {'maliciou': malicious, 
+        return {'malicious': malicious, 
             'suspicious': sus, 
             'harmless': harmless
         }
