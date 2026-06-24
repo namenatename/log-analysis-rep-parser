@@ -1,6 +1,6 @@
 # Log-Parser-IOC-Scanner 
 
-A Python-based tool that parses Sysmon JSON logs and uses extracted IOCs against the VirusTotal API & AbuseIPDB API to identify malicious indicators with MITRE ATT&CK framework mapping
+An IOC Enrichment tool that parses Sysmon JSON logs and uses extracted IOCs against the VirusTotal API & AbuseIPDB API to identify malicious indicators with MITRE ATT&CK framework mapping
 
 ## Features
 
