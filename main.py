@@ -15,29 +15,29 @@ def main():
     hash_list = extract_hash(hash_evts)
     result_dict = {}
     main_menu()
-    choice = input("Option: ").upper().strip()
-    while choice != "Q" and choice != "A" and choice !="B":
-        choice = input("Option: ").upper().strip()
-    if choice == "A":
+    choice = input('Option: ').upper().strip()
+    while choice != 'Q' and choice != 'A' and choice !='B':
+        choice = input('Option: ').upper().strip()
+    if choice == 'A':
         for i in ip_list:
-            print(f"Checking IP: {i}... ")
+            print(f'Checking IP: {i}... ')
             result = vt_check_ip(i)
             ipdb_result = abuse_check(i)
             # Store both data references in same dict
             result_dict[i] = {**result, **ipdb_result}
             time.sleep(15)
-        print("Done!")
-        generate_report(result_dict, "A")
-    elif choice == "B":
+        print('Done!')
+        generate_report(result_dict, 'A')
+    elif choice == 'B':
         for index, i in enumerate (hash_list, start=1):
-            print("Checking Hash:", index, "out of", len(hash_list))
+            print('Checking Hash:', index, 'out of', len(hash_list))
             result = check_hash(i)
             result_dict[i] = result
             time.sleep(15)
-        print("Done!")
-        generate_report(result_dict, "B")
-    elif choice == "Q":
-        print("Thank you!")
+        print('Done!')
+        generate_report(result_dict, 'B')
+    elif choice == 'Q':
+        print('Thank you!')
     
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
