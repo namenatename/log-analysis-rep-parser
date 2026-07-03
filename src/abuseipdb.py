@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import requests
 
 load_dotenv()
-api_key = os.getenv('ABUSEIPDB_API_KEY')
+api_key = os.getenv('ABUSEIPDB_API_KEY', '')
 
 def abuse_check(ip):
     url = 'https://api.abuseipdb.com/api/v2/check'
@@ -14,23 +14,23 @@ def abuse_check(ip):
     try:
         ipdb_check = requests.request(method='GET', url=url, headers=headers, params=params)
         ipdb_check.raise_for_status()
-        data = ipdb_check.json()
-        confidence_score = data.get('data', {}).get('abuseConfidenceScore')
-        totalReports = data.get('data', {}).get('totalReports')
-        isTor = data.get('data', {}).get('isTor')
-        usageType = data.get('data', {}).get('usageType')
+        data = ipdb_check.json().get('data', {})
         return {
-            'confidence': confidence_score,
-            'total_reports': totalReports,
-            'isTor' : isTor,
-            'usageType' : usageType
+            'confidence': data.get('abuseConfidenceScore'),
+            'total_reports': data.get('totalReports'),
+            'isTor': data.get('isTor'),
+            'usageType': data.get('usageType'),
+            'domain': data.get('domain'),
+            'lastReportedAt': data.get('lastReportedAt'),
         }
     except Exception as e:
         print(f'Error checking {ip}: {e}')
         return {
             'confidence': 0,
             'total_reports': 0,
-            'isTor' : None,
-            'usageType' : None
+            'isTor': None,
+            'usageType': None,
+            'domain': None,
+            'lastReportedAt': None,
         }
 
