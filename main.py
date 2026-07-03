@@ -8,7 +8,7 @@ from src.reporter import generate_report, main_menu
 from src.abuseipdb import abuse_check
 
 def main():
-    events = get_logs('sample_logs/sample_alerts.json')
+    events = get_logs('sample_logs/mimikatz_alerts.json')
     net_evts = network_events(events)
     hash_evts = eid_1(events)
     ip_list = extract_ips(net_evts)
