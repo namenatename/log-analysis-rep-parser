@@ -1,13 +1,24 @@
 # Report generator to confirm findings of VT API
 
 import csv
+import json
 
-# Tidy/long layout: one row per data point as (Source, Field, Value). Core VT
-# stats are written for every IOC; verbose enrichment rows only for flagged IOCs.
-report_header = ['IOC', 'Verdict', 'Source', 'Field', 'Value']
+# ip_std used for clean verdicts; verbose for sus and flagged
+ip_std = ['Type', 'IOC', 'Verdict', 'VT Malicious', 'VT Suspicious', 'VT Harmless']
+ip_verbose = [
+    'VT Undetected', 'VT Timeout', 'VT Reputation', 'VT Country', 'VT Owner',
+    'VT Network', 'VT Permalink', 'AbuseIPDB Confidence', 'AbuseIPDB Total Reports',
+    'AbuseIPDB isTor', 'AbuseIPDB Usage Type', 'AbuseIPDB Domain', 'AbuseIPDB Last Reported',
+]
+
+# Same structure for hashes as ip, but no AbuseIPDB
+hash_std = ['Type', 'IOC', 'Verdict', 'VT Malicious', 'VT Suspicious', 'VT Harmless']
+hash_verbose = [
+    'VT Undetected', 'VT Timeout', 'VT Reputation', 'VT Type Description',
+    'VT Meaningful Name', 'VT Names', 'VT Size', 'VT Permalink',
+]
 
 def ip_verdict(stats):
-    # Fix flagging condition
     if (stats['malicious'] >= 1 or stats['suspicious'] >= 2) and stats['confidence'] >= 50:
         return 'FLAGGED/HIGH'
     elif stats['malicious'] >= 3:
@@ -18,73 +29,114 @@ def ip_verdict(stats):
         return 'SUSPICIOUS (Tor Exit Node)'
     return 'CLEAN'
 
-def emit_rows(writer, ioc, verdict, rows):
-    # rows is a list of (source, field, value) tuples for this IOC
-    for source, field, value in rows:
-        writer.writerow([ioc, verdict, source, field, value])
+def ip_entry(ip, stats):
+    # Build entry for json log
+    verdict = ip_verdict(stats)
+    entry = {
+        'ioc': ip,
+        'type': 'IP',
+        'verdict': verdict,
+        'VirusTotal': {
+            'malicious': stats['malicious'],
+            'suspicious': stats['suspicious'],
+            'harmless': stats['harmless'],
+        },
+    }
+    if verdict != 'CLEAN':
+        # Verbose stats will use VT as default if same as AbuseIPDB
+        # E.g. country will come from VT rather than both
+        entry['VirusTotal'].update({
+            'undetected': stats['undetected'],
+            'timeout': stats['timeout'],
+            'reputation': stats['reputation'],
+            'country': stats['country'],
+            'owner': stats['as_owner'],
+            'network': stats['network'],
+            'permalink': stats['vt_permalink'],
+        })
+        entry['AbuseIPDB'] = {
+            'confidence': stats['confidence'],
+            'total_reports': stats['total_reports'],
+            'isTor': stats['isTor'],
+            'usage_type': stats['usageType'],
+            'domain': stats['domain'],
+            'last_reported': stats['lastReportedAt'],
+        }
+    return entry
 
-def ip_rows(stats, flagged):
-    core = [
-        ('VT', 'Malicious', stats['malicious']),
-        ('VT', 'Suspicious', stats['suspicious']),
-        ('VT', 'Harmless', stats['harmless']),
-    ]
-    if not flagged:
-        return core
-    # VT is the standard for country/owner, so AbuseIPDB's countryCode/isp are omitted
-    verbose = [
-        ('VT', 'Undetected', stats['undetected']),
-        ('VT', 'Timeout', stats['timeout']),
-        ('VT', 'Reputation', stats['reputation']),
-        ('VT', 'Country', stats['country']),
-        ('VT', 'Owner', stats['as_owner']),
-        ('VT', 'Network', stats['network']),
-        ('VT', 'Permalink', stats['vt_permalink']),
-        ('AbuseIPDB', 'Confidence', stats['confidence']),
-        ('AbuseIPDB', 'Total Reports', stats['total_reports']),
-        ('AbuseIPDB', 'isTor', stats['isTor']),
-        ('AbuseIPDB', 'Usage Type', stats['usageType']),
-        ('AbuseIPDB', 'Domain', stats['domain']),
-        ('AbuseIPDB', 'Last Reported', stats['lastReportedAt']),
-    ]
-    return core + verbose
+def hash_entry(file_hash, stats):
+    # Matches the structure of ip json log
+    flagged = stats['malicious'] >= 1 or stats['suspicious'] >= 2
+    entry = {
+        'ioc': file_hash,
+        'type': 'HASH',
+        'verdict': 'FLAGGED' if flagged else 'CLEAN',
+        'VirusTotal': {
+            'malicious': stats['malicious'],
+            'suspicious': stats['suspicious'],
+            'harmless': stats['harmless'],
+        },
+    }
+    if flagged:
+        entry['VirusTotal'].update({
+            'undetected': stats['undetected'],
+            'timeout': stats['timeout'],
+            'reputation': stats['reputation'],
+            'type_description': stats['type_description'],
+            'meaningful_name': stats['meaningful_name'],
+            'names': stats['names'],
+            'size': stats['size'],
+            'permalink': stats['vt_permalink'],
+        })
+    return entry
 
-def hash_rows(stats, flagged):
-    core = [
-        ('VT', 'Malicious', stats['malicious']),
-        ('VT', 'Suspicious', stats['suspicious']),
-        ('VT', 'Harmless', stats['harmless']),
-    ]
-    if not flagged:
-        return core
-    verbose = [
-        ('VT', 'Undetected', stats['undetected']),
-        ('VT', 'Timeout', stats['timeout']),
-        ('VT', 'Reputation', stats['reputation']),
-        ('VT', 'Type Description', stats['type_description']),
-        ('VT', 'Meaningful Name', stats['meaningful_name']),
-        ('VT', 'Names', stats['names']),
-        ('VT', 'Size', stats['size']),
-        ('VT', 'Permalink', stats['vt_permalink']),
-    ]
-    return core + verbose
+def write_json(result, choice):
+    if choice == 'A':
+        report = [ip_entry(ip, stats) for ip, stats in result.items()]
+    elif choice == 'B':
+        report = [hash_entry(file_hash, stats) for file_hash, stats in result.items()]
+    else:
+        report = []
+    with open('output/report.json', 'w') as file:
+        json.dump(report, file, indent=4)
 
-def generate_report(result, choice):
+def write_row(writer, core, verbose, flagged):
+    if flagged:
+        writer.writerow(core + verbose)
+    else:
+        writer.writerow(core + [''] * len(verbose))
+
+def write_csv(result, choice):
     with open('output/report.csv', 'w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(report_header)
-        # Loop through each IOC and emit its data points as labeled rows
         if choice == 'A':
-            for ip in result:
-                stats = result[ip]
+            writer.writerow(ip_std + ip_verbose)
+            for ip, stats in result.items():
                 verdict = ip_verdict(stats)
-                emit_rows(writer, ip, verdict, ip_rows(stats, verdict != 'CLEAN'))
+                core = ['IP', ip, verdict, stats['malicious'], stats['suspicious'], stats['harmless']]
+                verbose = [
+                    stats['undetected'], stats['timeout'], stats['reputation'],
+                    stats['country'], stats['as_owner'], stats['network'], stats['vt_permalink'],
+                    stats['confidence'], stats['total_reports'], stats['isTor'],
+                    stats['usageType'], stats['domain'], stats['lastReportedAt'],
+                ]
+                write_row(writer, core, verbose, verdict != 'CLEAN')
         elif choice == 'B':
-            for file_hash in result:
-                stats = result[file_hash]
+            writer.writerow(hash_std + hash_verbose)
+            for file_hash, stats in result.items():
                 flagged = stats['malicious'] >= 1 or stats['suspicious'] >= 2
                 verdict = 'FLAGGED' if flagged else 'CLEAN'
-                emit_rows(writer, file_hash, verdict, hash_rows(stats, flagged))
+                core = ['HASH', file_hash, verdict, stats['malicious'], stats['suspicious'], stats['harmless']]
+                verbose = [
+                    stats['undetected'], stats['timeout'], stats['reputation'],
+                    stats['type_description'], stats['meaningful_name'], stats['names'],
+                    stats['size'], stats['vt_permalink'],
+                ]
+                write_row(writer, core, verbose, flagged)
+        
+def generate_report(result, choice):
+    write_json(result, choice)
+    write_csv(result, choice)
 
 def main_menu():
     print('Log Parser & IOC Scanner Menu')
@@ -92,12 +144,3 @@ def main_menu():
     print('A) IP Check')
     print('B) Hash Check')
     print('Q) Quit')
-    
-
-            
-
-
-
-
-
-
