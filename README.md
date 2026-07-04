@@ -1,4 +1,4 @@
-# Log-Parser-IOC-Scanner 
+# LARP - Log Analysis & Reputation Parser
 
 An IOC Enrichment tool that parses Sysmon JSON logs and uses extracted IOCs against the VirusTotal API & AbuseIPDB API to identify malicious indicators with MITRE ATT&CK framework mapping
 
