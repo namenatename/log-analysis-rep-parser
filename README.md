@@ -19,7 +19,7 @@ Dataset used was the [Mimikatz Data Set](https://github.com/OTRF/Security-Datase
 
 To test the dataset, synthetic IOC injection was used to inject one known malicious IP and malicious hash into the original dataset. The IP used was found on [Feodo Tracker's blocklist](https://feodotracker.abuse.ch/blocklist/#ip-blocklist). The IP blocklist for C2 botnets tracked by Feodo will be provided in the sample_logs/ folder of this repo. Additionally, a [sample SHA256 malicious Mimikatz hash](https://bazaar.abuse.ch/sample/d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1/) from the Malware Bazaar database was used to test the capabilities of the hash detector tool. The original IOC from the OTRF Mimikatz Dataset, along with the injected IOC from the two malware databases specified are as follows:
 
-| Original IOC | Injected IOC | Database |
+| Original | Injected IOC | Database |
 |---|---|---|
 | IP - 40.90.22.192| 50.16.16.211 | Feodo Tracker |
 | SHA256 - 7567E455BA5F511680E68E38B416173A3D8744CBD172180A50EE2364BD3551F6 | d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1 | MalwareBazaar |
