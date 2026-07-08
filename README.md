@@ -49,8 +49,8 @@ connections associated with post-exploitation activity. Results from tool usage 
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/namenatename/log-parser-ioc-scanner.git
-cd log-parser-ioc-scanner
+git clone https://github.com/namenatename/log-analysis-rep-parser.git
+cd log-analysis-rep-parser
 
 # 2. Activate venv
 python -m venv .venv
@@ -198,7 +198,7 @@ HASH,d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1,FLAGGED,42
 ## Structure 
 
 ```
-log-parser-ioc-scanner/
+log-analysis-rep-parser/
 	output/                    # Reports generated will be found here
 		.gitkeep
 		report.csv             # Not included, sample report
