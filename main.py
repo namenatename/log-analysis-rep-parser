@@ -1,5 +1,7 @@
 """ Run the script and enrich IOCs! """
 
+from rich.console import Console
+from rich.progress import track
 import time
 from src.parser import get_logs, network_events, eid_1
 from src.extractor import extract_hash, extract_ips
@@ -16,28 +18,27 @@ def main():
     result_dict = {}
     main_menu()
     choice = input('Option: ').upper().strip()
-    while choice != 'Q' and choice != 'A' and choice !='B':
+    console = Console()
+    while choice != 'Q' and choice != 'A' and choice !='B' and choice != 'T':
         choice = input('Option: ').upper().strip()
     if choice == 'A':
-        for i in ip_list:
-            print(f'Checking IP: {i}... ')
+        for i in track(ip_list, description='Processing IPs...'):
             result = vt_check_ip(i)
             ipdb_result = abuse_check(i)
             # Store both data references in same dict
             result_dict[i] = {**result, **ipdb_result}
             time.sleep(15)
-        print('Done!')
+        console.print('\n[bold cyan]Done! Find the reports in the output/ folder.')
         generate_report(result_dict, 'A')
     elif choice == 'B':
-        for index, i in enumerate (hash_list, start=1):
-            print('Checking Hash:', index, 'out of', len(hash_list))
+        for i in track(hash_list, description='Processing Hashes...'):
             result = check_hash(i)
             result_dict[i] = result
             time.sleep(15)
-        print('Done!')
+        console.print('\n[bold cyan]Done! Find the reports in the output/ folder.')
         generate_report(result_dict, 'B')
     elif choice == 'Q':
-        print('Thank you!')
+        console.print('\n[bold cyan] Thank you!')
     
 if __name__ == '__main__':
     main()

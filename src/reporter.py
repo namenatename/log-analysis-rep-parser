@@ -2,6 +2,7 @@
 
 import csv
 import json
+import pyfiglet
 
 # ip_std used for clean verdicts; verbose for sus and flagged
 ip_std = ['Type', 'IOC', 'Verdict', 'VT Malicious', 'VT Suspicious', 'VT Harmless']
@@ -139,8 +140,10 @@ def generate_report(result, choice):
     write_csv(result, choice)
 
 def main_menu():
-    print('Log Parser & IOC Scanner Menu')
-    print('Select from choices: ')
-    print('A) IP Check')
-    print('B) Hash Check')
-    print('Q) Quit')
+    ascii_banner = pyfiglet.figlet_format("LARP!")
+    print(ascii_banner)
+    print('\nLog Analysis & Rep Parser Menu!')
+    print('\nSelect from choices: ')
+    print('[A] IP Check')
+    print('[B] Hash Check')
+    print('[Q] Quit\n')
