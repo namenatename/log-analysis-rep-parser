@@ -11,25 +11,24 @@ An IOC Enrichment tool that parses Sysmon JSON logs and uses extracted IOCs agai
 
 ## Dataset
 
-Using raw log data provided by the OTRF Security Datasets project: https://github.com/OTRF/Security-Datasets/
-Dataset used was the [Mimikatz Data Set](https://github.com/OTRF/Security-Datasets/blob/master/datasets/atomic/windows/credential_access/host/empire_mimikatz_extract_keys.zip)
-*Mimikatz is a post-exploitation Windows tool that dumps credentials and its tasks, such as requesting Kerberos tickets; the tool often generates originating IP logs within Windows Event Logs*
+Using raw log data provided by the [OTRF Security Datasets](https://github.com/OTRF/Security-Datasets/) project. The
+dataset used was the [Mimikatz Data Set](https://github.com/OTRF/Security-Datasets/blob/master/datasets/atomic/windows/credential_access/host/empire_mimikatz_extract_keys.zip)
+
+- *Mimikatz is a post-exploitation Windows tool that dumps credentials and its tasks, such as requesting Kerberos tickets; the tool often generates originating IP logs within Windows Event Logs*
 
 ## Synthetic IOC Injection
 
 To test the dataset, synthetic IOC injection was used to inject one known malicious IP and malicious hash into the original dataset. The IP used was found on [Feodo Tracker's blocklist](https://feodotracker.abuse.ch/blocklist/#ip-blocklist). The IP blocklist for C2 botnets tracked by Feodo will be provided in the sample_logs/ folder of this repo. Additionally, a [sample SHA256 malicious Mimikatz hash](https://bazaar.abuse.ch/sample/d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1/) from the Malware Bazaar database was used to test the capabilities of the hash detector tool. The original IOC from the OTRF Mimikatz Dataset, along with the injected IOC from the two malware databases specified are as follows:
 
 | Original | Injected IOC | Database |
-|---|---|---|
+|---|---|---|  
 | IP - 40.90.22.192| 50.16.16.211 | Feodo Tracker |
 | SHA256 - 7567E455BA5F511680E68E38B416173A3D8744CBD172180A50EE2364BD3551F6 | d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1 | MalwareBazaar |
-
 
 ## MITRE ATT&CK Mapping (Based on Mimikatz Log)
 
 Test dataset maps to **T1003 - OS Credential Dumping** correlated to Mimikatz execution.
-Network IOCs extracted from Sysmon Event ID 3 logs detect suspicious outbound 
-connections associated with post-exploitation activity. Results from tool usage verify that the outbound connections found in this dataset were run in a test environment, as AbuseIPDB scores show confidence scores of 0, most consistent with test infrastructure, along with minimal IP flagging. Hash sets found in process creation also come back clean and are not linked to any malicious indicators. Based on these test results in a real-world scenario, MITRE ATT&CK mapping is as follows:
+Network IOCs extracted from Sysmon Event ID 3 logs detect suspicious outbound connections associated with post-exploitation activity. Results from tool usage verify that the outbound connections found in this dataset were run in a test environment, as AbuseIPDB scores show confidence scores of 0, most consistent with test infrastructure, along with minimal IP flagging. Hash sets found in process creation also come back clean and are not linked to any malicious indicators. Based on these test results in a real-world scenario, MITRE ATT&CK mapping is as follows:
 
 | Category | ID | Description |
 |---|---|---|
@@ -38,12 +37,11 @@ connections associated with post-exploitation activity. Results from tool usage 
 | Detection Strategy | DET0234 | Credential Dumping via Sensitive Memory and Registry Access Correlation — logs Sysmon Event IDs 10 and 1 to detect unauthorized access to sensitive OS subsystems |
 | Mitigation | M1040 | Behavior Prevention on Endpoint — Enable Attack Surface Reduction (ASR) rules to prevent credential stealing |
 
-
 ## Requirements
 
 - Python 3.8+
-- VirusTotal free API key (runs 4 req/min | https://virustotal.com)
-- AbuseIPDB free API key (1000 req/day | https://abuseipdb.com)
+- [VirusTotal free API key](https://virustotal.com) -> `runs 4 requests/min`
+- [AbuseIPDB free API key](https://abuseipdb.com) -> `1000 req/day`
 
 ## Setup
 
@@ -66,17 +64,12 @@ cp .env.example .env
 python main.py
 ```
 
-## Usage
-
-Run the current IOC scanner toolset using:
-	python main.py
-Note: VirusTotal free tier limits the script to ~2 minutes for the 8 IPs found in the test dataset, output will not generate until after all IPs are tested
-
 ## Output
 
 The reporter tool will generate a .csv and .json found within `output/`:
 
-**IP Lookup (CSV)**
+### IP Lookup (CSV)
+
 ```csv
 Type,IOC,Verdict,VT Malicious,VT Suspicious,VT Harmless,VT Undetected,VT Timeout,VT Reputation,VT Country,VT Owner,VT Network,VT Permalink,AbuseIPDB Confidence,AbuseIPDB Total Reports,AbuseIPDB isTor,AbuseIPDB Usage Type,AbuseIPDB Domain,AbuseIPDB Last Reported
 IP,104.117.16.77,CLEAN,0,0,58,,,,,,,,,,,,,
@@ -85,7 +78,8 @@ IP,50.16.16.211,FLAGGED BY VT,3,1,53,34,0,0,US,"Amazon.com, Inc.",50.16.0.0/15,h
 IP,52.167.249.196,CLEAN,0,0,55,,,,,,,,,,,,,
 ```
 
-**IP Lookup (JSON)**
+### IP Lookup (JSON)
+
 ```json
 [
     {
@@ -146,16 +140,18 @@ IP,52.167.249.196,CLEAN,0,0,55,,,,,,,,,,,,,
 ]
 ```
 
-**Hash Lookup (CSV)** 
+### Hash Lookup (CSV)
 
-* *Note: .csv generation for hash does not read as well, but may be helpful for storing many hash sets at the same time!*
+- *Note: .csv generation for hash does not read as well, but may be helpful for storing many hash sets at the same time!*
+
 ```csv
 Type,IOC,Verdict,VT Malicious,VT Suspicious,VT Harmless,VT Undetected,VT Timeout,VT Reputation,VT Type Description,VT Meaningful Name,VT Names,VT Size,VT Permalink
 HASH,A8A4C4719113B071BB50D67F6E12C188B92C70EEAFDFCD6F5DA69B6AAA99A7FD,CLEAN,0,0,0,,,,,,,,
 HASH,d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1,FLAGGED,42,0,0,24,2,-2,Win32 EXE,d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1.exe,d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1.exe; 4.exe; 截图 (4).exe; ��ͼ.exe,223744,https://www.virustotal.com/gui/file/d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1
 ```
 
-**Hash Lookup (JSON)**
+### Hash Lookup (JSON)
+
 ```json
 [
     {
@@ -194,14 +190,13 @@ HASH,d5d224ea6b0a9002e4637c25d41edff516335fe132e6dd53938ee0decaadedc1,FLAGGED,42
 - Include API mapping for AlienVault OTX for multi-source IOC context
 - Other log format support (Windows EVTX)
 
+## Structure
 
-## Structure 
-
-```
+```bash
 log-analysis-rep-parser/
 	output/                    # Reports generated will be found here
 		.gitkeep
-		report.csv             # Not included, sample report
+        report.csv             # Not included, sample report
 		report.json
 	sample_logs/
 	    ipblocklist.json       # Included FEODO botnet C2s from past 30 days
